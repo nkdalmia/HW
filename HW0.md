@@ -62,3 +62,13 @@ git revert HEAD
 ### Progress
 
 ![git_exercises](https://cloud.githubusercontent.com/assets/9170076/9653002/70c7dade-51ee-11e5-8490-e722bf52b4dc.JPG)
+
+## Git Hooks
+
+### post-commit file (Windows)
+```
+#!/bin/sh
+start https://duckduckgo.com
+```
+
+### Screencast
