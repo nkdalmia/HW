@@ -68,6 +68,7 @@ git revert HEAD
 ### post-commit file (Windows)
 ```
 #!/bin/sh
+
 start https://duckduckgo.com
 ```
 
