@@ -1,7 +1,7 @@
 # HW 1
 
 ## One Time Setup
-Install Python (version >= 3.0) and [VirtualEnv](http://virtualenv.readthedocs.org/en/latest/).
+Install Python (version >= 3.0), [VirtualEnv](http://virtualenv.readthedocs.org/en/latest/) and Ansible.
 
 Get the code and setup virtual environment to run the python script
 ```
