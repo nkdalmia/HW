@@ -7,7 +7,7 @@ Get the code and setup virtual environment to run the python script
 ```
 git clone https://github.com/nkdalmia/HW.git
 cd HW/HW1
-virtualenv ~/venv
+virtualenv -p python3 ~/venv
 ```
 ## Running the code
 
