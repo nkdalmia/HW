@@ -1,4 +1,5 @@
 python main.py
 
 echo "Running ansible playbook to install Nginx on provisioned servers"
-ansible-playbook provision_playbook.yml -i inventory
+export ANSIBLE_HOST_KEY_CHECKING=False
+ansible-playbook -i 'inventory' provision_playbook.yml
