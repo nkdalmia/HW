@@ -22,7 +22,7 @@ pip install -r requirements.txt
 ```
 Any package dependencies can be put in requirements.txt.
 
-### Provision Servers
+### Server Provisioning and Nginx Installation
 ```
 ./provision.sh
 ```
