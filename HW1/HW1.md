@@ -1,79 +1,39 @@
-# HW 1: Solutions
+# HW 1
 
-## Learn Git
+## One Time Setup
+Install Python (version >= 3.0) and [VirtualEnv http://virtualenv.readthedocs.org/en/latest/].
 
-### Level 1: Introduction to Git Commits
+Get the code and setup virtual environment to run the python script
 ```
-git commit -m "C2"
-git commit -m "C3"
+git clone https://github.com/nkdalmia/HW.git
+cd HW/HW1
+virtualenv venv
 ```
+## Running the code
 
-### Level 2: Branching in Git
+### Activate Python Virtual Environment
 ```
-git branch bugFix
-git checkout bugFix
-```
-
-### Level 3: Merging in Git
-```
-git branch bugFix
-git checkout bugFix
-git commit -m "C2"
-git checkout master
-git commit -m "C3"
-git merge bugFix
+source venv/bin/activate
 ```
 
-### Level 4: Rebase Introduction
+### Configuration Management (Installing dependencies)
 ```
-git branch bugFix
-git checkout bugFix
-git commit -m "C2"
-git checkout master
-git commit -m "C3"
-git checkout bugFix
-git rebase master
+pip install -r requirements.txt
+```
+Any package dependencies can be put in requirements.txt.
+
+### Provision Servers
+```
+./provision.sh
 ```
 
-### Level 5: Detach yo' HEAD
+### Deactivate Python Virtual Environment
 ```
-git checkout C4
-```
-
-### Level 6: Relative Refs (^)
-```
-git checkout bugFix^
+deactivate
 ```
 
-### Level 7: Relative Refs #2 (~)
-```
-git branch -f master C6
-git checkout HEAD~1
-git branch -f bugFix HEAD~1
-```
-
-### Level 8: Reversing Changes in Git
-```
-git reset HEAD~1
-git checkout pushed
-git revert HEAD
-```
-
-### Progress
+### Screencast
 
 ![git_exercises](https://cloud.githubusercontent.com/assets/9170076/9653002/70c7dade-51ee-11e5-8490-e722bf52b4dc.JPG)
-
-## Git Hooks
-
-### post-commit file (Windows)
-```
-#!/bin/sh
-
-start https://duckduckgo.com
-```
-
-### Gif Image
-
-![hooks](https://cloud.githubusercontent.com/assets/9170076/9693487/df5f3ea2-531e-11e5-84a8-9ec409fd1e9b.gif)
 
 
