@@ -7,33 +7,32 @@ Get the code and setup virtual environment to run the python script
 ```
 git clone https://github.com/nkdalmia/HW.git
 cd HW/HW1
-virtualenv venv
+virtualenv ~/venv
 ```
 ## Running the code
 
 ### Activate Python Virtual Environment
 ```
-source venv/bin/activate
+source ~/venv/bin/activate
 ```
 
 ### Configuration Management (Installing dependencies)
 ```
 pip install -r requirements.txt
 ```
-Any package dependencies can be put in requirements.txt.
+In future, new package dependencies can be put in requirements.txt.
 
 ### Server Provisioning and Nginx Installation
 ```
 ./provision.sh
 ```
+Runs the python script main.py used to provisions servers and the ansible playbook that installs nginx on provisioned servers.
 
 ### Deactivate Python Virtual Environment
 ```
 deactivate
 ```
 
-### Screencast
-
-![git_exercises](https://cloud.githubusercontent.com/assets/9170076/9653002/70c7dade-51ee-11e5-8490-e722bf52b4dc.JPG)
+## Screencast
 
 
