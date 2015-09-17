@@ -1,19 +1,26 @@
 import requests
 import json
 import time
+import configparser
 
 DIGITALOCEAN_DROPLETS_ENDPOINT = 'https://api.digitalocean.com/v2/droplets/'
-AUTH_TOKEN = '8a12ed07b17dc26e4859ac15c6c74d0a21227cb53ced016f7d406fa234b78237'
+
 
 class DigitalOceanService:
 
+    def getAuthToken(self):
+        ini_file = '/home/ndalmia/keys/digitalocean_auth_token.ini'
+        config = configparser.ConfigParser()
+        config.read(ini_file)
+        return config['DEFAULT']['AUTH_TOKEN']
+
     ## create droplet
     def createDroplet(self):
-        headers = {'Content-Type':'application/json', 'Authorization': 'Bearer ' + AUTH_TOKEN}
+        headers = {'Content-Type':'application/json', 'Authorization': 'Bearer ' + self.getAuthToken()}
 
         name = 'test-droplet-1'
         region = 'nyc1'
-        image = 'fedora-21-x64'
+        image = 'ubuntu-14-04-x64'
         data = {
         'name': name,
         'region': region,
@@ -47,7 +54,7 @@ class DigitalOceanService:
             raise Exception('Failed to create droplet')
 
     def deleteDroplet(self, id):
-        headers = {'Content-Type':'application/json', 'Authorization': 'Bearer ' + AUTH_TOKEN}
+        headers = {'Content-Type':'application/json', 'Authorization': 'Bearer ' + self.getAuthToken()}
         resp = requests.delete(DIGITALOCEAN_DROPLETS_ENDPOINT + str(id), headers=headers)
         if (resp.status_code == 204):
             print('Successfully deleted droplet with id ' + str(id))
@@ -55,7 +62,7 @@ class DigitalOceanService:
             raise Exception('Failed to delete droplet')
 
     def deleteAllDroplets(self):
-        headers = {'Content-Type':'application/json', 'Authorization': 'Bearer ' + AUTH_TOKEN}
+        headers = {'Content-Type':'application/json', 'Authorization': 'Bearer ' + self.getAuthToken()}
         resp = requests.get(DIGITALOCEAN_DROPLETS_ENDPOINT, headers=headers)
         if (resp.status_code == 200):
             resp_body = resp.json()
@@ -65,7 +72,7 @@ class DigitalOceanService:
             raise Exception('Failed to list all droplets')
 
     def getDropletIp(self, id):
-        headers = {'Content-Type':'application/json', 'Authorization': 'Bearer ' + AUTH_TOKEN}
+        headers = {'Content-Type':'application/json', 'Authorization': 'Bearer ' + self.getAuthToken()}
         resp = requests.get(DIGITALOCEAN_DROPLETS_ENDPOINT + str(id), headers=headers)
         if (resp.status_code == 200):
             resp_body = resp.json()

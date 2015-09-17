@@ -1,0 +1,11 @@
+---
+- hosts: WebServers
+  tasks:
+  - name: Install Nginx on Servers
+    sudo: true
+    apt: pkg=nginx state=installed update_cache=true
+    notify:
+    - start nginx
+  handlers:
+    - name: start nginx
+      service: name=nginx state=started

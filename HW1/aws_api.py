@@ -8,9 +8,9 @@ class AWSService:
         image = 'ami-01fa416a'
 
         ec2 = boto3.resource('ec2', region)
-        instance = ec2.create_instances(ImageId=image, MinCount=1, MaxCount=1)
+        instance = ec2.create_instances(ImageId=image, MinCount=1, MaxCount=1, KeyName='Fedora Home')
         id = instance[0].id
-        print('Created EC2 instance with id: ' + str(id))
+        print('Created AWS EC2 instance with id: ' + str(id))
         ip = None
         i = 1
         while (ip is None):
@@ -21,7 +21,13 @@ class AWSService:
                 print('sleeping for ' + str(timeout) + ' seconds')
                 time.sleep(timeout)
                 i += 1
-        print("EC2 Instance Ip Addess: " + ip)
+        print("AWS EC2 Instance Ip Addess: " + ip)
+
+        ## Timeout to ensure instance is initialized
+        timeout_initilizing = 120
+        print('Waiting for AWS EC2 instance to initialize. Sleeping for ' + str(timeout_initilizing) + ' seconds')
+        time.sleep(timeout_initilizing)
+
         return ip
 
     def deleteAllEC2Instances(self):
@@ -30,5 +36,3 @@ class AWSService:
         ec2 = boto3.resource('ec2', region)
         ec2.instances.stop()
         ec2.instances.terminate()
-
-
