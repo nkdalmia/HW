@@ -5,4 +5,4 @@ digitalocean_service = DigitalOceanService()
 digitalocean_service.deleteAllDroplets()
 
 aws_service = AWSService()
-# aws_service.deleteAllEC2Instances
+aws_service.deleteAllEC2Instances
