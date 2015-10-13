@@ -15,15 +15,15 @@ function inc(p, q) {
 function weird(x, y, z, mode) {
     if (x > 7 && y < 0) {z = 33; } 
     else if (z < 42) {
-        // if (mode == "strict") {
-        //     return 0;
+        if (mode == "strict") {
+            return 0;
         // } else if (mode.indexOf("werw") == 0) {
-            return 1;
-        // }
+        //     return 1;
+        }
     } else {
-        // if (mode != "strict") {
+        if (mode != "strict") {
             return y = z / x;
-        // }
+        }
     }
     return 1;
 }

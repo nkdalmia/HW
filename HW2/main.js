@@ -101,11 +101,9 @@ var blockVisitor = function(statement, funcName, params, isFunctionParent, paren
 
 function getConstraintsFromIfStatement(test, params, constraints) {
     if (test.type === 'BinaryExpression') {
-        console.log('binary');
         return getConstraintsFromBinaryExpression(test, params, constraints);
     }
     if (test.type === 'LogicalExpression') {
-        console.log('logical');
         return getConstraintsFromLogicalExpression(test, params, constraints);
     }
 }
@@ -115,10 +113,10 @@ function getConstraintsFromLogicalExpression(test, params, constraints) {
         return getConstraintsFromBinaryExpression(test, params, constraints);
     }
 
-    var leftCs = getConstraintsFromBinaryExpression(test.left, params, constraints);
-    var rightCs = getConstraintsFromBinaryExpression(test.right, params, constraints);
-    console.log(leftCs);
-    console.log(rightCs);
+    var leftCs = getConstraintsFromLogicalExpression(test.left, params, constraints);
+    var rightCs = getConstraintsFromLogicalExpression(test.right, params, constraints);
+    // console.log(leftCs);
+    // console.log(rightCs);
     var cs = {'success' : [], 'fail': []};
     if (test.operator == '&&') {
         for (var i = 0; i < leftCs['fail'].length; ++i) {
@@ -170,14 +168,33 @@ function getConstraintsFromBinaryExpression(test, params, constraints) {
     var literalKey = isIdentInLeft ? 'right' : 'left';
     var p = test[identKey].name;
 
-    var literal = "undefined";
+    var literal = null;
     if (test[literalKey].type === "Literal") {
         literal = test[literalKey].value;
     }
 
     if (test.operator == '==') {
-        c1[p].value = literal;
-        c2[p].value = (literal == "undefined") ? 0: literal + 1;
+        if (typeof literal === "string") {            
+            literal = test[literalKey].raw;
+            c1[p].value = literal;
+            c1[p].kind = 'string';
+            c2[p].exclude.push(literal);
+            c2[p].kind = 'string';
+        } else {
+            c1[p].value = literal;
+            c2[p].value = (literal == null) ? 0: literal + 1;
+        }
+    } else if (test.operator == '!=') {
+        if (typeof literal === "string") {
+            literal = test[literalKey].raw;
+            c1[p].exclude.push(literal);
+            c1[p].kind = 'string';
+            c2[p].value = literal;
+            c2[p].kind = 'string';
+        } else {
+            c2[p].value = literal;
+            c1[p].value = (literal == null) ? 0: literal + 1;
+        }
     } else if ( (test.operator == ">" && identKey == 'left') || (test.operator == "<" && identKey == 'right') ) {
         c1[p].min = literal;
         c1[p].isMinInclusive = false;
@@ -200,9 +217,9 @@ function Constraint(properties) {
     if (properties === null) {
         this.expression = null;
         this.operator = null;
-        this.kind = null;
+        this.kind = 'integer';
         this.value = null;
-        this.exclude = null;
+        this.exclude = [];
         this.min = null;
         this.max = null;
         this.isMinInclusive = false;
@@ -234,51 +251,60 @@ function createRootConstraints(params) {
 }
 
 function merge(params, c1, c2) {
-    console.log(c1);
-    console.log(c2);
+    // console.log(c1);
+    // console.log(c2);
     var c = JSON.parse(JSON.stringify(c1));
 
     for (var i = 0; i < params.length; ++i) {
-        var leftC = c[params[i]];
-        var rightC = c2[params[i]];
+        var leftc = c[params[i]];
+        var rightc = c2[params[i]];
 
-        if (leftC.value != null) {
-            // do nothing
-        } else if (rightC.value != null) {
-            leftC.value = right.value;
+        if (leftc.kind === 'string') {
+            if (rightc.value != null) {
+                leftc.value = rightc.value;
+            }
+            for (var i = 0; i < rigthc.exclude.length; ++i) {
+                leftc.exclude.push(rightc.exclude[i]);
+            }
         } else {
-            if (rightC.min != null) {
-                if (leftC.min == null) {
-                    leftC.min = rightC.min;
-                    leftC.isMinInclusive = rightC.isMinInclusive;
-                } else {
-                    if (rightC.min == leftC.min) {
-                        leftC.isMinInclusive = leftC.isMinInclusive && rightC.isMinInclusive;
-                    } else if (rightC.min > leftC.min) {
-                        leftC.min = rightC.min;
-                        leftC.isMinInclusive = rightC.isMinInclusive;
+            if (leftc.value != null) {
+                // do nothing
+            } else if (rightc.value != null) {
+                leftc.value = right.value;
+            } else {
+                if (rightc.min != null) {
+                    if (leftc.min == null) {
+                        leftc.min = rightc.min;
+                        leftc.ismininclusive = rightc.ismininclusive;
+                    } else {
+                        if (rightc.min == leftc.min) {
+                            leftc.ismininclusive = leftc.ismininclusive && rightc.ismininclusive;
+                        } else if (rightc.min > leftc.min) {
+                            leftc.min = rightc.min;
+                            leftc.ismininclusive = rightc.ismininclusive;
+                        }
+                    }
+                }
+
+                if (rightc.max != null) {
+                    if (leftc.max == null) {
+                        leftc.max = rightc.max;
+                        leftc.ismaxinclusive = rightc.ismaxinclusive;
+                    } else {
+                        if (rightc.max == leftc.max) {
+                            leftc.ismaxinclusive = leftc.ismaxinclusive && rightc.ismaxinclusive;
+                        } else if (rightc.max < leftc.max) {
+                            leftc.max = rightc.max;
+                            leftc.ismaxinclusive = rightc.ismaxinclusive;
+                        }
                     }
                 }
             }
-
-            if (rightC.max != null) {
-                if (leftC.max == null) {
-                    leftC.max = rightC.max;
-                    leftC.isMaxInclusive = rightC.isMaxInclusive;
-                } else {
-                    if (rightC.max == leftC.max) {
-                        leftC.isMaxInclusive = leftC.isMaxInclusive && rightC.isMaxInclusive;
-                    } else if (rightC.max < leftC.max) {
-                        leftC.max = rightC.max;
-                        leftC.isMaxInclusive = rightC.isMaxInclusive;
-                    }
-                }
-            }
-
         }
     }
     return c;
 }
+
 function createConcreteIntegerValue(greaterThan, constraintValue) {
     if (greaterThan)
         return Random.integer(constraintValue, constraintValue + 10)(engine);
@@ -318,11 +344,26 @@ function generateTestCases() {
                 // console.log(constraints[i][j]);
                 // console.log('\n');
                 var paramConstraint = constraints[i][param];
-                var val = "undefined";
-                if (paramConstraint.value != null) {
-                    val = paramConstraint.value;
+                var val = 'undefined';
+                if (paramConstraint.kind == 'string') {
+                    if (paramConstraint.value != null) {
+                        val = paramConstraint.value;
+                    } else {
+                        var notInExcluded = "some_random_str";
+                        var lit = 0;
+                        while (paramConstraint.exclude.indexOf(notInExcluded) > -1) {
+                            notInExcluded += lit;
+                            lit++;
+                        }
+                        val = "\"notInExcluded\"";
+                    }
+
                 } else {
-                    val = createIntegerBetween(paramConstraint.min, paramConstraint.max);
+                    if (paramConstraint.value != null) {
+                        val = paramConstraint.value;
+                    } else {
+                        val = createIntegerBetween(paramConstraint.min, paramConstraint.max);
+                    }
                 }
                 
                 args.push(val);
