@@ -15,16 +15,16 @@ var engine = Random.engines.mt19937().autoSeed();
 
 var functionConstraints = {};
 
-// var mockFileLibrary = {
-//     pathExists: {
-//         'path/fileExists': {}
-//     },
-//     fileWithContent: {
-//         pathContent: {
-//             file1: 'text content',
-//         }
-//     }
-// };
+var mockFileLibrary = {
+    pathExists: {
+        'path/fileExists': {}
+    },
+    fileWithContent: {
+        pathContent: {
+            file1: 'text content',
+        }
+    }
+};
 
 function main() {
     var args = process.argv.slice(2);
@@ -152,17 +152,39 @@ function getConstraintsFromLogicalExpression(test, params, constraints) {
 }
 
 function getConstraintsFromBinaryExpression(test, params, constraints) {
-    var c1 = JSON.parse(JSON.stringify(constraints));
-    var c2 = JSON.parse(JSON.stringify(constraints));
-
+    
     var isIdentInLeft;
     if (test.left.type == 'Identifier' && params.indexOf(test.left.name) > -1) {
-        isIdentInLeft = true;
+        return getConstraintsFromBasicBinaryExp(test, params, constraints, true);
     } else if (test.right.type == 'Identifier' && params.indexOf(test.right.name) > -1) {
-        isIdentInLeft = false;
+        return getConstraintsFromBasicBinaryExp(test, params, constraints, false);
+    } else if (test.left.type == 'CallExpression' && test.left.callee.property && test.left.callee.property.name == 'indexOf'
+        && params.indexOf(test.left.callee.object.name) > -1) {
+        var p = test.left.callee.object.name;
+        var comparedWithStr = test.left.arguments[0].value;
+        var indexPos = test.right.value;
+        var c1 = JSON.parse(JSON.stringify(constraints));
+        var c2 = JSON.parse(JSON.stringify(constraints));
+        // TODO handle edge cases
+        var randStr = "some_random_test";
+        var prefix = randStr.substring(0, indexPos);
+
+        c1[p].value = '"' + prefix + comparedWithStr + '"';
+        c1[p].kind = 'string';
+        c2[p].value = '"' + randStr + '"';
+        c2[p].kind = 'string';
+        var cs = {};
+        cs['success'] = [c1];
+        cs['fail'] = [c2];
+        return cs;
     } else {
         return [];
     }
+}
+
+function getConstraintsFromBasicBinaryExp(test, params, constraints, isIdentInLeft) {
+    var c1 = JSON.parse(JSON.stringify(constraints));
+    var c2 = JSON.parse(JSON.stringify(constraints));
 
     var identKey = isIdentInLeft ? 'left' : 'right';
     var literalKey = isIdentInLeft ? 'right' : 'left';

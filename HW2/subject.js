@@ -17,8 +17,8 @@ function weird(x, y, z, mode) {
     else if (z < 42) {
         if (mode == "strict") {
             return 0;
-        // } else if (mode.indexOf("werw") == 0) {
-        //     return 1;
+        } else if (mode.indexOf("werw") == 0) {
+            return 1;
         }
     } else {
         if (mode != "strict") {
