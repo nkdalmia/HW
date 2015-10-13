@@ -77,9 +77,15 @@ var blockVisitor = function(statement, funcName, params, isFunctionParent, paren
                     }
                 }
 
-                if (statement.alternate != null && statement.alternate.type === 'BlockStatement') {
-                    for (var i = 0; i < cs['fail'].length; ++i) {
-                        traverse(statement.alternate, funcName, params, false, cs['fail'][i], blockVisitor);
+                if (statement.alternate != null) {
+                    if (statement.alternate.type === 'BlockStatement') {
+                        for (var i = 0; i < cs['fail'].length; ++i) {
+                            traverse(statement.alternate, funcName, params, false, cs['fail'][i], blockVisitor);
+                        }
+                    } else if (statement.alternate.type === 'IfStatement') {
+                        for (var i = 0; i < cs['fail'].length; ++i) {
+                            blockVisitor(statement.alternate, funcName, params, false, cs['fail'][i]);
+                        }
                     }
                 } else {
                     for (var i = 0; i < cs['fail'].length; ++i) {
@@ -228,6 +234,8 @@ function createRootConstraints(params) {
 }
 
 function merge(params, c1, c2) {
+    console.log(c1);
+    console.log(c2);
     var c = JSON.parse(JSON.stringify(c1));
 
     for (var i = 0; i < params.length; ++i) {
