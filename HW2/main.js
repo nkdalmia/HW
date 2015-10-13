@@ -65,19 +65,26 @@ var blockVisitor = function(statement, funcName, params, isFunctionParent, paren
             console.log(statement.type);
             if (statement.type === 'IfStatement') {
                 var cs = getConstraintsFromIfStatement(statement.test, params, parentConstraints);
+                // console.log(cs);
 
                 if (statement.consequent.type === 'BlockStatement') {
-                    for (var i = 1; i < cs.length; ++ i) {
-                        traverse(statement.consequent, funcName, params, false, cs[i], blockVisitor);
+                    for (var i = 0; i < cs['success'].length; ++i) {
+                        traverse(statement.consequent, funcName, params, false, cs['success'][i], blockVisitor);
                     }
                 } else {
-                    functionConstraints[funcName].constraints.push(cs[1]);
+                    for (var i = 0; i < cs['success'].length; ++i) {
+                        functionConstraints[funcName].constraints.push(cs['success'][i]);
+                    }
                 }
 
                 if (statement.alternate != null && statement.alternate.type === 'BlockStatement') {
-                    traverse(statement.alternate, funcName, params, false, cs[0], blockVisitor);
+                    for (var i = 0; i < cs['fail'].length; ++i) {
+                        traverse(statement.alternate, funcName, params, false, cs['fail'][i], blockVisitor);
+                    }
                 } else {
-                    functionConstraints[funcName].constraints.push(cs[0]);
+                    for (var i = 0; i < cs['fail'].length; ++i) {
+                        functionConstraints[funcName].constraints.push(cs['fail'][i]);
+                    }
                 }
             } else {
                 if (!isFunctionParent) {
@@ -88,9 +95,58 @@ var blockVisitor = function(statement, funcName, params, isFunctionParent, paren
 
 function getConstraintsFromIfStatement(test, params, constraints) {
     if (test.type === 'BinaryExpression') {
+        console.log('binary');
         return getConstraintsFromBinaryExpression(test, params, constraints);
     }
+    if (test.type === 'LogicalExpression') {
+        console.log('logical');
+        return getConstraintsFromLogicalExpression(test, params, constraints);
+    }
 }
+
+function getConstraintsFromLogicalExpression(test, params, constraints) {
+    if (test.type === 'BinaryExpression') {
+        return getConstraintsFromBinaryExpression(test, params, constraints);
+    }
+
+    var leftCs = getConstraintsFromBinaryExpression(test.left, params, constraints);
+    var rightCs = getConstraintsFromBinaryExpression(test.right, params, constraints);
+    console.log(leftCs);
+    console.log(rightCs);
+    var cs = {'success' : [], 'fail': []};
+    if (test.operator == '&&') {
+        for (var i = 0; i < leftCs['fail'].length; ++i) {
+            cs['fail'].push(leftCs['fail'][i]);
+        }
+
+        for (var i = 0; i < leftCs['success'].length; ++i) {
+            for (var j = 0; j < rightCs['fail'].length; ++j) {
+                cs['fail'].push(merge(params, leftCs['success'][i], rightCs['fail'][j]));
+            }
+
+            for (var j = 0; j < rightCs['success'].length; ++j) {
+                cs['success'].push(merge(params, leftCs['success'][i], rightCs['success'][j]));
+            }
+        }
+    } else {
+        for (var i = 0; i < leftCs['success'].length; ++i) {
+            cs['success'].push(leftCs['success'][i]);
+        }
+        
+        for (var i = 0; i < leftCs['fail'].length; ++i) {
+            for (var j = 0; j < rightCs['fail'].length; ++j) {
+                cs['fail'].push(merge(params, leftCs['fail'][i], rightCs['fail'][j]));
+            }
+
+            for (var j = 0; j < rightCs['success'].length; ++j) {
+                cs['success'].push(merge(params, leftCs['fail'][i], rightCs['success'][j]));
+            }
+        }
+    }
+
+    return cs;
+}
+
 function getConstraintsFromBinaryExpression(test, params, constraints) {
     var c1 = JSON.parse(JSON.stringify(constraints));
     var c2 = JSON.parse(JSON.stringify(constraints));
@@ -128,9 +184,9 @@ function getConstraintsFromBinaryExpression(test, params, constraints) {
         c2[p].isMinInclusive = true;
     }
 
-    var cs = [];
-    cs.push(c1);
-    cs.push(c2);
+    var cs = {};
+    cs['success'] = [c1];
+    cs['fail'] = [c2];
     return cs;
 }
 
@@ -171,6 +227,50 @@ function createRootConstraints(params) {
     return initialConstraints;
 }
 
+function merge(params, c1, c2) {
+    var c = JSON.parse(JSON.stringify(c1));
+
+    for (var i = 0; i < params.length; ++i) {
+        var leftC = c[params[i]];
+        var rightC = c2[params[i]];
+
+        if (leftC.value != null) {
+            // do nothing
+        } else if (rightC.value != null) {
+            leftC.value = right.value;
+        } else {
+            if (rightC.min != null) {
+                if (leftC.min == null) {
+                    leftC.min = rightC.min;
+                    leftC.isMinInclusive = rightC.isMinInclusive;
+                } else {
+                    if (rightC.min == leftC.min) {
+                        leftC.isMinInclusive = leftC.isMinInclusive && rightC.isMinInclusive;
+                    } else if (rightC.min > leftC.min) {
+                        leftC.min = rightC.min;
+                        leftC.isMinInclusive = rightC.isMinInclusive;
+                    }
+                }
+            }
+
+            if (rightC.max != null) {
+                if (leftC.max == null) {
+                    leftC.max = rightC.max;
+                    leftC.isMaxInclusive = rightC.isMaxInclusive;
+                } else {
+                    if (rightC.max == leftC.max) {
+                        leftC.isMaxInclusive = leftC.isMaxInclusive && rightC.isMaxInclusive;
+                    } else if (rightC.max < leftC.max) {
+                        leftC.max = rightC.max;
+                        leftC.isMaxInclusive = rightC.isMaxInclusive;
+                    }
+                }
+            }
+
+        }
+    }
+    return c;
+}
 function createConcreteIntegerValue(greaterThan, constraintValue) {
     if (greaterThan)
         return Random.integer(constraintValue, constraintValue + 10)(engine);
