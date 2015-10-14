@@ -14,24 +14,15 @@ var Random = require('random-js');
 
 function main() {
     var args = process.argv.slice(2);
-
     if (args.length == 0) {
         args = ["subject.js"];
     }
     var filePath = args[0];
-
     constraints(filePath);
     generateTestCases(filePath)
 }
 
 var engine = Random.engines.mt19937().autoSeed();
-
-function createConcreteIntegerValue(greaterThan, constraintValue) {
-    if (greaterThan)
-        return Random.integer(constraintValue, constraintValue + 10)(engine);
-    else
-        return Random.integer(constraintValue - 10, constraintValue)(engine);
-}
 
 function Constraint(properties) {
     this.ident = properties.ident;
@@ -39,8 +30,6 @@ function Constraint(properties) {
     this.operator = properties.operator;
     this.value = properties.value;
     this.funcName = properties.funcName;
-    // Supported kinds: "fileWithContent","fileExists"
-    // integer, string, phoneNumber
     this.kind = properties.kind;
 }
 
@@ -74,7 +63,6 @@ var mockFileLibrary = {
 };
 
 function generateTestCases(filePath) {
-
     var content = "var subject = require('./" + filePath + "')\nvar mock = require('mock-fs');\n";
     for (var funcName in functionConstraints) {
         var params = {};
@@ -123,7 +111,7 @@ function generateTestCases(filePath) {
                 return params[key];
             });
 
-            var args = dotProduct.apply(this, argsInArr);
+            var args = cartesianProductOf.apply(this, argsInArr);
             for (var i = 0; i < args.length; ++i) {
                 content += "subject.{0}({1});\n".format(funcName, args[i]);
             }
@@ -139,39 +127,28 @@ function generateTestCases(filePath) {
                     return params[key];
                 });
 
-                content += generateMockFsTestCases(pathExists, pathExistsWithFiles, fileWithContent, fileWithNoContent, funcName, argsInArr);
-                content += generateMockFsTestCases(pathExists, pathExistsWithFiles, fileWithContent, !fileWithNoContent, funcName, argsInArr);
-                content += generateMockFsTestCases(pathExists, pathExistsWithFiles, !fileWithContent, fileWithNoContent, funcName, argsInArr);
-                content += generateMockFsTestCases(pathExists, pathExistsWithFiles, !fileWithContent, !fileWithNoContent, funcName, argsInArr);
-                content += generateMockFsTestCases(pathExists, !pathExistsWithFiles, fileWithContent, fileWithNoContent, funcName, argsInArr);
-                content += generateMockFsTestCases(pathExists, !pathExistsWithFiles, fileWithContent, !fileWithNoContent, funcName, argsInArr);
-                content += generateMockFsTestCases(pathExists, !pathExistsWithFiles, !fileWithContent, fileWithNoContent, funcName, argsInArr);
-                content += generateMockFsTestCases(pathExists, !pathExistsWithFiles, !fileWithContent, !fileWithNoContent, funcName, argsInArr);
-                content += generateMockFsTestCases(!pathExists, pathExistsWithFiles, fileWithContent, fileWithNoContent, funcName, argsInArr);
-                content += generateMockFsTestCases(!pathExists, pathExistsWithFiles, fileWithContent, !fileWithNoContent, funcName, argsInArr);
-                content += generateMockFsTestCases(!pathExists, pathExistsWithFiles, !fileWithContent, fileWithNoContent, funcName, argsInArr);
-                content += generateMockFsTestCases(!pathExists, pathExistsWithFiles, !fileWithContent, !fileWithNoContent, funcName, argsInArr);
-                content += generateMockFsTestCases(!pathExists, !pathExistsWithFiles, fileWithContent, fileWithNoContent, funcName, argsInArr);
-                content += generateMockFsTestCases(!pathExists, !pathExistsWithFiles, fileWithContent, !fileWithNoContent, funcName, argsInArr);
-                content += generateMockFsTestCases(!pathExists, !pathExistsWithFiles, !fileWithContent, fileWithNoContent, funcName, argsInArr);
-                content += generateMockFsTestCases(!pathExists, !pathExistsWithFiles, !fileWithContent, !fileWithNoContent, funcName, argsInArr);
+                for (var i = 0; i < 16; ++i) {
+                    var pE = ((parseInt(i/8) % 2) == 0 )? pathExists : !pathExists;
+                    var pEWF = ((parseInt(i/4) % 2) == 0) ? pathExistsWithFiles : !pathExistsWithFiles;
+                    var fWC = ((parseInt(i/2) % 2) == 0) ? fileWithContent : !fileWithContent;
+                    var fWNC = ((i % 2) == 0) ? fileWithNoContent : !fileWithNoContent;
+                    content += generateMockFsTestCases(pE, pEWF, fWC, fWNC, funcName, argsInArr);
+                }
             }
         }
     }
-
     fs.writeFileSync('test.js', content, "utf8");
 }
 
-function dotProduct() {
+//Obtained from http://stackoverflow.com/questions/12303989/cartesian-product-of-multiple-arrays-in-javascript
+function cartesianProductOf() {
     return _.reduce(arguments, function(a, b) {
         return _.flatten(_.map(a, function(x) {
             return _.map(b, function(y) {
                 return x.concat([y]);
             });
         }), true);
-    }, [
-        []
-    ]);
+    }, [ [] ]);
 };
 
 function generateMockFsTestCases(pathExists, pathExistsWithFiles, fileWithContent, fileWitNoContent, funcName, args) {
