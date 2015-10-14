@@ -40,6 +40,12 @@ function fakeDemo() {
 }
 
 var functionConstraints = {}
+var fsRelatedFunctions = [];
+function addFsRelatedFunction(name) {
+    if (fsRelatedFunctions.indexOf(name) <= -1) {
+        fsRelatedFunctions.push(name);
+    }
+}
 
 var mockFileLibrary = {
     pathExists: {
@@ -71,7 +77,7 @@ function generateTestCases(filePath) {
         for (var i = 0; i < functionConstraints[funcName].params.length; i++) {
             var paramName = functionConstraints[funcName].params[i];
             //params[paramName] = '\'' + faker.phone.phoneNumber()+'\'';
-            params[paramName] = new Array();
+            params[paramName] = [];
         }
 
         // update parameter values based on known constraints.
@@ -106,7 +112,7 @@ function generateTestCases(filePath) {
         }
 
         // Prepare function arguments.
-        if (funcName != 'fileTest') {
+        if (fsRelatedFunctions.indexOf(funcName) <= -1) {
             var argsInArr = Object.keys(params).map(function(key) {
                 return params[key];
             });
@@ -293,12 +299,24 @@ function constraints(filePath) {
                             child.left.callee.property.name == "indexOf" &&
                             params.indexOf(child.left.callee.object.name) > -1)
 
-                        {
+                        {   
+                            var randStr = "some_random_test";
                             var comparedWithStr = child.left.arguments[0].value;
                             var indexPos = child.right.value;
-                            var randStr = "some_random_test"; //TODO handle string expansion
+                            for (var code = 65; code <= 122; ) {
+                                var chr = String.fromCharCode(code);
+                                if (comparedWithStr.indexOf(chr) <= -1) {
+                                    randStr = new Array(indexPos + 2).join(chr);
+                                    break;
+                                }
+                                if (code == 90) {
+                                    code = 97;
+                                } else {
+                                    ++code;
+                                }
+                            }
+                            
                             var prefix = (indexPos == 0) ? '' : randStr.substring(0, indexPos);
-
                             var b1 = '"' + prefix + comparedWithStr + '"';
                             var b2 = '"' + randStr + '"';
                             functionConstraints[funcName].constraints.push(
@@ -353,6 +371,7 @@ function constraints(filePath) {
                     if (child.type == "CallExpression" &&
                         child.callee.property &&
                         child.callee.property.name == "readFileSync") {
+                        addFsRelatedFunction(funcName);
                         for (var p = 0; p < params.length; p++) {
                             if (child.arguments[0].name == params[p]) {
                                 functionConstraints[funcName].constraints.push(
@@ -381,6 +400,7 @@ function constraints(filePath) {
                     if (child.type == "CallExpression" &&
                         child.callee.property &&
                         child.callee.property.name == "readdirSync") {
+                        addFsRelatedFunction(funcName);
                         for (var p = 0; p < params.length; p++) {
                             if (child.arguments[0].name == params[p]) {
                                 functionConstraints[funcName].constraints.push(
@@ -399,6 +419,7 @@ function constraints(filePath) {
                     if (child.type == "CallExpression" &&
                         child.callee.property &&
                         child.callee.property.name == "existsSync") {
+                        addFsRelatedFunction(funcName);
                         for (var p = 0; p < params.length; p++) {
                             if (child.arguments[0].name == params[p]) {
                                 functionConstraints[funcName].constraints.push(
