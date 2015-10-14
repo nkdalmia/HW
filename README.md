@@ -4,4 +4,4 @@ Click on the below links to go to the README file for each Homework.
 
 ## [HW1](HW1/HW1.md)
 
-## [HW2](HW2/README.md)
+## [HW2](HW2/)
