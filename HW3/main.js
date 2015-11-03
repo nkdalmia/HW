@@ -102,7 +102,7 @@ proxyApp.all('/*', function(req, res) {
     });
 });
 
-var proxyServer = proxyApp.listen(5000, function() {
+var proxyServer = proxyApp.listen(80, function() {
 
     var host = proxyServer.address().address
     var port = proxyServer.address().port
