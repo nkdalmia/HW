@@ -105,6 +105,9 @@ proxyApp.all('/*', function(req, res) {
 var proxyServer = proxyApp.listen(8080, function() {
 
     var host = proxyServer.address().address
+    if (!host || host == "::") {
+        host = "127.0.0.1";
+    }
     var port = proxyServer.address().port
 
     console.log('Proxy server listening at http://%s:%s', host, port)
