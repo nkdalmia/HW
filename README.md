@@ -5,3 +5,5 @@ Click on the below links to go to the respective folder for each Homework.
 ## [HW1](HW1/)
 
 ## [HW2](HW2/)
+
+## [HW3](HW3/)
