@@ -57,4 +57,4 @@ The proxy server runs on port 8080 and delivers requests to the two appliction s
 * The proxy server delivers the request to the application server that was moved in the above step.
 
 ## Screencast
-Link: 
+Link: https://youtu.be/bZHTejFD3pw
