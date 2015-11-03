@@ -19,7 +19,7 @@ npm install
 node main.js
 ```
 
-This will start a proxy server (running on port 80) and 2 application servers (running on 3000 and 3001).
+This will start a proxy server (running on port 8080) and 2 application servers (running on 3000 and 3001).
 
 ## Calling Application Server APIs
 ### Set/Get
@@ -48,7 +48,7 @@ http://localhost/meow
 ```
 
 ## Proxy Server
-The proxy server runs on port 80 and delivers requests to the two appliction servers uniformly.
+The proxy server runs on port 8080 and delivers requests to the two appliction servers uniformly.
 * 1st request is delivered to localhost:3000, 2nd request to localhost:3001, 3rd request again to localhost:3000, 4th to localhost:3001 and so on.
 
 ### Implementation Details
