@@ -25,26 +25,26 @@ This will start a proxy server (running on port 8080) and 2 application servers 
 ### Set/Get
 From your browser, go to 
 ```
-http://localhost/get
-http://localhost/set
+http://localhost:8080/get
+http://localhost:8080/set
 ```
 
 ### Recent
 From your browser, go to 
 ```
-http://localhost/recent
+http://localhost:8080/recent
 ```
 Note: The above request (GET /recent) is always the most recent received request.
 
 ## Upload/Meow
 Use curl to upload the image:
 ```
-curl -F "image=@./img/morning.jpg" localhost/upload
+curl -F "image=@./img/morning.jpg" localhost:8080/upload
 ```
 
 To view the most recently uploaded image, go to
 ```
-http://localhost/meow
+http://localhost:8080/meow
 ```
 
 ## Proxy Server
@@ -57,4 +57,4 @@ The proxy server runs on port 8080 and delivers requests to the two appliction s
 * The proxy server delivers the request to the application server that was moved in the above step.
 
 ## Screencast
-Link: http://
+Link: 
