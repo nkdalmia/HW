@@ -1,4 +1,4 @@
-# HW 1
+# HW 3
 
 ## Setup
 
@@ -17,14 +17,16 @@ npm install
 
 ### Application Servers
 ```
-//node main.js <app_port>
+## Use command node main.js <app_port>
+
 node main.js 3000
 node main.js 3001
 ```
 
 ### Proxy Server
 ```
-// node main.js <proxy_port> <app1_addres> <app2_address>
+## Use Command node main.js <proxy_port> <app1_addres> <app2_address>
+
 node main.js 8080 http://localhost:3000 http://localhost:3001
 ```
 
