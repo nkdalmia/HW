@@ -16,17 +16,15 @@ npm install
 ## Running Proxy Server and Application Servers
 
 ### Application Servers
+An Application Server can be started using the command `node main.js <app_port>`.
 ```
-## Use command node main.js <app_port>
-
 node main.js 3000
 node main.js 3001
 ```
 
 ### Proxy Server
+Start Proxy Server using the command `node main.js <proxy_port> <app1_addres> <app2_address>`.
 ```
-## Use Command node main.js <proxy_port> <app1_addres> <app2_address>
-
 node main.js 8080 http://localhost:3000 http://localhost:3001
 ```
 
