@@ -3,14 +3,19 @@ var multer = require('multer')
 var express = require('express')
 var fs = require('fs')
 var app = express()
-var httpProxy = require('http-proxy')
+
+var serverPort = 3000;
+process.argv.forEach(function (val, index, array) {
+    if (index == 2) {
+        serverPort = parseInt(val);
+    }
+});
 
 // REDIS
 var client = redis.createClient(6379, '127.0.0.1', {})
 var key = "test1";
 var recentKey = "recent";
 var imagesKey = "images";
-var targetNodesKey = "targets";
 
 ///////////// WEB ROUTES
 
@@ -73,42 +78,11 @@ app.get('/recent', function(req, res) {
 });
 
 // Server Info (ip, port, number of servers)
-var targetNodes = [];
-var ports = [3000, 3001];
-ports.forEach(function(port) {
-    var server = app.listen(port);
-    var host = server.address().address;
-    if (!host || host == "::") {
-        host = "127.0.0.1";
-    }
-    var targetNode = "http" + "://" + host + ":" + server.address().port;
-    console.log('App listening at %s', targetNode);
-    targetNodes.push(targetNode);
-});
+var server = app.listen(serverPort);
+var host = server.address().address;
+if (!host || host == "::") {
+    host = "localhost";
+}
+var targetNode = "http" + "://" + host + ":" + serverPort;
+console.log('App listening at %s', targetNode);
 
-//Add server list to redis
-client.del(targetNodesKey);
-targetNodes.forEach(function(s) {
-    client.lpush(targetNodesKey, s);
-});
-
-//Proxy related code
-var proxy = httpProxy.createProxyServer({});
-var proxyApp = express()
-proxyApp.all('/*', function(req, res) {
-    client.rpoplpush(targetNodesKey, targetNodesKey, function(err, value) {
-        console.log("proxying to %s", value);
-        proxy.web(req, res, {target: value});
-    });
-});
-
-var proxyServer = proxyApp.listen(8080, function() {
-
-    var host = proxyServer.address().address
-    if (!host || host == "::") {
-        host = "127.0.0.1";
-    }
-    var port = proxyServer.address().port
-
-    console.log('Proxy server listening at http://%s:%s', host, port)
-});

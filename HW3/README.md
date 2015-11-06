@@ -13,10 +13,19 @@ cd HW/HW3
 npm install
 ```
 
-## Running Proxy Server and Application servers
+## Running Proxy Server and Application Servers
 
+### Application Servers
 ```
-node main.js
+//node main.js <app_port>
+node main.js 3000
+node main.js 3001
+```
+
+### Proxy Server
+```
+// node main.js <proxy_port> <app1_addres> <app2_address>
+node main.js 8080 http://localhost:3000 http://localhost:3001
 ```
 
 This will start a proxy server (running on port 8080) and 2 application servers (running on 3000 and 3001).
@@ -57,4 +66,4 @@ The proxy server runs on port 8080 and delivers requests to the two appliction s
 * The proxy server delivers the request to the application server that was moved in the above step.
 
 ## Screencast
-Link: https://youtu.be/bZHTejFD3pw
+Link: https://youtu.be/ASn4fZpUlzw
