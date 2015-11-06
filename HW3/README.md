@@ -28,8 +28,6 @@ Start Proxy Server using the command `node main.js <proxy_port> <app1_addres> <a
 node main.js 8080 http://localhost:3000 http://localhost:3001
 ```
 
-This will start a proxy server (running on port 8080) and 2 application servers (running on 3000 and 3001).
-
 ## Calling Application Server APIs
 ### Set/Get
 From your browser, go to 
