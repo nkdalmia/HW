@@ -19,11 +19,13 @@ Run the linked app container and open bash shell in it
 ```
 docker run -it --rm --name linked_app_container --link legacy_app_container:legacy_app_container linked_app /bin/bash
 ```
-Read the file in linked app container by accessing port 9001 on legacy app container
+Read the file in linked app container by accessing port 9001 on legacy app container using curl
+```
 curl legacy_app_container:9001
+```
 
 ### Screencast
-Link: https://youtu.be/ASn4fZpUlzw
+Link: 
 
 ## Ambassador pattern
 ### Redis server and Redis server Ambassador
@@ -71,7 +73,7 @@ get key
 ```
 
 ### Screencast
-Link: https://youtu.be/ASn4fZpUlzw
+Link: 
 
 ## Docker Deploy
 Run Docker registry.
@@ -112,7 +114,8 @@ Access app deployed with latest changes at
 http://localhost:3000/
 
 # Green App
-http://localhost:3000/
+http://localhost:3001/
+```
 
 ### Screencast
-Link: https://youtu.be/ASn4fZpUlzw
+Link: 
