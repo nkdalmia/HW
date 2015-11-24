@@ -5,22 +5,22 @@
 ### Containers for Legacy App and Linked App
 Build the docker image for legacy app.
 ```
-sudo docker build -f LegacyApp_Dockerfile -t legacyapp .
+docker build -f Legacy_App_Dockerfile -t legacy_app .
 ```
 Run the legacy app container
 ```
-sudo docker run -it --rm --name legacyappcontainer legacyapp
+docker run -it --rm --name legacy_app_container legacy_app
 ```
 Build the docker image that will run the linked app container
 ```
-sudo docker build -f LinkedApp_Dockerfile -t linkedapp .
+docker build -f Linked_App_Dockerfile -t linked_app .
 ```
 Run the linked app container and open bash shell in it
 ```
-sudo docker run -it --rm --name linkedappcontainer --link legacyappcontainer:legacyappcontainer linkedapp /bin/bash
+docker run -it --rm --name linked_app_container --link legacy_app_container:legacy_app_container linked_app /bin/bash
 ```
 Read the file in linked app container by accessing port 9001 on legacy app container
-curl legacyappcontainer:9001
+curl legacy_app_container:9001
 
 ### Screencast
 Link: https://youtu.be/ASn4fZpUlzw
@@ -69,6 +69,50 @@ Perform set and get from Redis client to Redis server using ambassadors.
 set key 1
 get key
 ```
+
+### Screencast
+Link: https://youtu.be/ASn4fZpUlzw
+
+## Docker Deploy
+Run Docker registry.
+```
+docker run -d -p 5000:5000 --restart=always --name registry registry:0.9.1
+```
+
+In a folder not present in this repository folder, create required deploy folders.
+```
+mkdir deploy/
+cd deploy/
+mkdir blue.git/ blue-www/ green.git/ green-www/
+cd deploy/green.git
+git init --bare
+cd ..
+cd blue.git
+git init --bare
+```
+Set ROOT environment variable to the above creared deploy folder.
+```
+export ROOT=/home/ndalmia/assignments/DevOps/hw4_part3/deploy
+```
+Clone the [app repo](https://github.com/CSC-DevOps/App), and set the following remotes.
+```
+git remote add blue file://$ROOT/blue.git
+git remote add green file://$ROOT/green.git
+```
+
+Commit changes and push to above remotes using
+```
+git push blue master
+git push green master
+```
+
+Access app deployed with latest changes at
+```
+# Blue App
+http://localhost:3000/
+
+# Green App
+http://localhost:3000/
 
 ### Screencast
 Link: https://youtu.be/ASn4fZpUlzw

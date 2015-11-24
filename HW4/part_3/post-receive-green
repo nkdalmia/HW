@@ -1,0 +1,5 @@
+#!/bin/bash
+
+docker pull localhost:5000/ncsu_app:latest
+docker rm -f ncsu_app_container_blue
+docker run -p 3001:8080 -d --name ncsu_app_container_blue localhost:5000/ncsu_app:latest

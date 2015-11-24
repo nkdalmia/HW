@@ -1,0 +1,11 @@
+#!/bin/sh
+
+cd $GIT_DIR/../
+echo "Building Docker Image....."
+docker build -t ncsu_app .
+echo "Done"
+
+echo "\nPublishing updated image to Docker registry....."
+docker tag -f ncsu_app localhost:5000/ncsu_app:latest
+docker push localhost:5000/ncsu_app:latest
+echo "Done"
