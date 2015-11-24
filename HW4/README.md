@@ -111,10 +111,10 @@ git push green master
 Access app deployed with latest changes at
 ```
 # Blue App
-http://localhost:3000/
+http://localhost:3001/
 
 # Green App
-http://localhost:3001/
+http://localhost:3002/
 ```
 
 ### Screencast
