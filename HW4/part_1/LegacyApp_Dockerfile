@@ -1,0 +1,5 @@
+FROM ubuntu:14.04
+RUN apt-get update && apt-get install -y socat
+RUN echo "Contents of the sample file present in the legacy app." > sample.txt
+CMD socat -d tcp-listen:9001,fork 'SYSTEM:cat sample.txt'
+
