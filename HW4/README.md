@@ -25,7 +25,7 @@ curl legacy_app_container:9001
 ```
 
 ### Screencast
-Link: 
+Link: https://youtu.be/uOYqc1_CCH8
 
 ## Ambassador pattern
 ### Redis server and Redis server Ambassador
@@ -73,7 +73,7 @@ get key
 ```
 
 ### Screencast
-Link: 
+Link: https://youtu.be/LIHvnUmw-Ng
 
 ## Docker Deploy
 Run Docker registry.
